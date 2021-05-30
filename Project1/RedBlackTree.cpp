@@ -169,3 +169,142 @@ void RedBlackTree::LeftRotation(RBNode* node, bool check) {
 	if (check) swap(node->color, temp->color);
 
 }
+
+void RedBlackTree::Delete(int data)
+{
+	auto node = Search(data, head);	//z
+	auto temp = node;	//y
+	RBNode* dbNode;		//x
+	Color nodeColor = node->color;
+
+	if (node->left == NULL) {		//Node has only left child
+		dbNode = node->right;
+		DeleteNode(head, node, node->right);
+	}
+	else if (node->right == NULL) {		//Node has only right child
+		dbNode = node->left;
+		DeleteNode(head, node, node->left);
+	}
+	else {	//Node has both children
+		temp = Successor(head, node->right);
+		nodeColor = temp->color;
+		dbNode = temp->right;
+
+		if (temp->parent == node) {
+			dbNode->parent = node;
+		}
+		else {
+			DeleteNode(head, temp, temp->right);
+			temp->right = node->right;
+			temp->right->parent = temp;
+		}
+		DeleteNode(head, node, temp);
+		temp->left = node->left;
+		temp->left->parent = temp;
+		temp->color = node->color;
+	}
+
+	if (nodeColor == Black) {
+		FixDeletion(head, dbNode);
+	}
+
+	InOrder(head);
+}
+
+void RedBlackTree::DeleteNode(RBNode* head, RBNode* node, RBNode* newNode)
+{
+	if (node->parent == NULL) {
+		head = newNode;
+	}
+	else if (node == node->parent->left) {
+		node->parent->left = newNode;
+	}
+	else if (node == node->parent->right) {
+		node->parent->right = newNode;
+	}
+
+	if(newNode != NULL)	newNode->parent = node->parent;
+
+}
+
+RBNode* RedBlackTree::Search(int data, RBNode* node)
+{
+
+	
+	if (node->info > data) {
+		Search(data, node->left);
+	}
+	else if (node->info < data) {
+		Search(data, node->right);
+	}
+	else {
+		return node;
+	}
+}
+
+void RedBlackTree::FixDeletion(RBNode* head, RBNode* node)
+{
+	while (node != head && node->color == Black) {
+		if (node == node->parent->left) {
+			auto sibling = node->parent->right;
+
+			if (sibling->color == Red) {
+				node->parent->color = Red;
+				sibling->color = Black;
+				LeftRotation(node, false);
+			}
+			if (sibling->left->color == Black && sibling->right->color == Black) {
+				sibling->color = Red;
+				node = node->parent;
+			}
+			else {
+				if (sibling->right->color == Black) {
+					sibling->left->color = Black;
+					sibling->color = Red;
+					RightRotation(sibling->left, false);
+					sibling = node->parent->right;
+				}
+
+				sibling->color = node->parent->color;
+				node->parent->color = Black;
+				sibling->right->color = Black;
+				LeftRotation(node->left, false);
+				node = head;
+			}
+		}
+		else {
+			auto sibling = node->parent->left;
+			if (sibling->color == Red) {
+				sibling->color = Black;
+				node->parent->color = Red;
+				RightRotation(node, false);
+				sibling = node->parent->left;
+			}
+			if (sibling->right->color == Black && sibling->left->color == Black) {
+				sibling->color = Red;
+				node = node->parent;
+			}
+			else {
+				if (sibling->left->color == Black) {
+					sibling->right->color = Black;
+					sibling->color = Red;
+					LeftRotation(sibling->right, false);
+				}
+				sibling->color = node->parent->color;
+				node->parent->color = Black;
+				sibling->left->color = Black;
+				RightRotation(node, false);
+				node = head;
+			}
+		}
+	}
+	node->color = Black;
+}
+
+RBNode* RedBlackTree::Successor(RBNode* head, RBNode* node)
+{
+	while (node->left != NULL) {
+		node = node->left;
+	}
+	return node;
+}

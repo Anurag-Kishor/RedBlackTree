@@ -14,4 +14,6 @@ int main() {
 	rbt->Add(15);
 	rbt->Add(21);
 
+	rbt->Delete(1);
+
 }

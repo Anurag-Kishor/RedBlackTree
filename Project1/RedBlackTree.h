@@ -19,6 +19,8 @@ class RedBlackTree {
 public:
 	RedBlackTree();
 	void Add(int data);
+	void Delete(int data);
+
 
 private:
 	RBNode* head;
@@ -28,7 +30,10 @@ private:
 	RBNode* FindSibling(RBNode* node);
 	void RightRotation(RBNode* node, bool check);
 	void LeftRotation(RBNode* node, bool check);
-	
+	void DeleteNode(RBNode* head, RBNode* node, RBNode* nodeRight);
+	RBNode* Search(int data, RBNode* node);
+	void FixDeletion(RBNode* head, RBNode* node);
+	RBNode* Successor(RBNode* head, RBNode* node);
 };
 
 
